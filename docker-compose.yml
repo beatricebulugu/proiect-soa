@@ -1,0 +1,41 @@
+services:
+  web:
+    build: .
+    container_name: gestiune-web
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+    volumes:
+      # în dezvoltare vezi imediat schimbările din cod
+      - .:/var/www/html
+
+  db:
+    image: mysql:8.0
+    container_name: gestiune-db
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: appdb
+      MYSQL_USER: appuser
+      MYSQL_PASSWORD: apppass
+    command: --default-authentication-plugin=caching_sha2_password
+    volumes:
+      - dbdata:/var/lib/mysql
+    ports:
+      # opțional: dacă vrei să te conectezi cu un client local
+      - "3307:3306"
+
+  phpmyadmin:
+    image: phpmyadmin:5
+    container_name: gestiune-pma
+    depends_on:
+      - db
+    environment:
+      PMA_HOST: db
+      PMA_USER: appuser
+      PMA_PASSWORD: apppass
+    ports:
+      - "8081:80"
+
+volumes:
+  dbdata:
